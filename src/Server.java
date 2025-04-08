@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Server {
     public static void main(String[] arg) {
-        String boofer="";
+
 
         ServerSocket serverSocket = null;
         Socket clientAccepted = null; // объявление объекта класса Socket
@@ -21,14 +21,20 @@ public class Server {
             soos = new ObjectOutputStream(clientAccepted.getOutputStream()); // создание потока вывода
 
             String clientMessageReceived = (String) sois.readObject(); // чтение сообщения от клиента
-            char[] characters = clientMessageReceived.toCharArray();
-            System.out.println(characters[0]);
-            String modifiedString = clientMessageReceived.substring(2);
+
             while (!clientMessageReceived.equals("quite")) { // цикл до получения "quite"
+
+
+
+
+
 
                 System.out.println(clientMessageReceived);
 
-                soos.writeObject("data: \n"+boofer);
+                soos.writeObject("data: "+clientMessageReceived);
+
+
+
                 clientMessageReceived = (String) sois.readObject(); // ожидание нового сообщения от клиента
             }
         } catch (Exception e) {
