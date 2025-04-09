@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class BD {
     private final String HOST = "localhost";
     private final String PORT = "3306"; // Убедитесь, что порт правильный
-    private final String DB_NAME = "java_task7";
+    private final String DB_NAME = "kyrs_work";
     private final String LOGIN = "root"; // Имя пользователя
     private final String PASSWORD = "root"; // Пароль
 
@@ -15,22 +15,78 @@ public class BD {
     }
 
 
+    public int getUser(String login, String password) {
+        String sql = "SELECT login FROM `users_log` WHERE login = ? AND password = ?"; // Extracting login
+        int result = 0;
 
-
-    // Метод для вставки пользователя в базу данных
-    public void insertUser(String login, String password) {
-        String sql = "INSERT INTO `task7_1` (login, password) VALUES (?, ?)"; // Используйте 'login' и 'password'
         try (Connection connection = getDbConnection();
              PreparedStatement prSt = connection.prepareStatement(sql)) {
 
             prSt.setString(1, login);
             prSt.setString(2, password);
-            prSt.executeUpdate();
-            System.out.println("Пользователь успешно добавлен: " + login);
+            ResultSet resultSet = prSt.executeQuery();
+
+            if (resultSet.next()) {
+
+                result = 1;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        return result;
     }
+
+    public int insertUser(String gmail, String login, String password) {
+        String sqlCheck = "SELECT login FROM `users_log` WHERE gmail = ? OR login = ?";
+        String sqlInsert = "INSERT INTO `users_log` (gmail, login, password) VALUES (?, ?, ?)";
+        int result = 0;
+
+        try (Connection connection = getDbConnection();
+             PreparedStatement prStCheck = connection.prepareStatement(sqlCheck)) {
+
+            prStCheck.setString(1, gmail);
+            prStCheck.setString(2, login);
+            ResultSet resultSet = prStCheck.executeQuery();
+
+            // Проверяем, есть ли уже пользователь с таким gmail и login
+            if (!resultSet.next()) { // Если нет результатов, добавляем пользователя
+                try (PreparedStatement prStInsert = connection.prepareStatement(sqlInsert)) {
+                    prStInsert.setString(1, gmail);
+                    prStInsert.setString(2, login);
+                    prStInsert.setString(3, password);
+                    prStInsert.executeUpdate();
+                    result=1;
+                    System.out.println("Пользователь успешно добавлен: " + login);
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("Пользователь с таким gmail и login уже существует.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Метод для вставки пользователя в базу данных
+
 
     // Метод для получения всех пользователей из базы данных
     public ArrayList<String> getUsers() {
@@ -76,7 +132,7 @@ public class BD {
 
             prSt.setString(1, login);
             prSt.setString(2, String.valueOf(status));
-            prSt.executeUpdate();
+
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,6 +146,19 @@ public class BD {
         try (Connection connection = getDbConnection();
              PreparedStatement prSt = connection.prepareStatement(sql);
              ResultSet resultSet = prSt.executeQuery()) {
+
+            if(resultSet!=null){
+                while (resultSet.next()) {
+
+                    String user = resultSet.getString("login");
+
+
+
+                }
+            }else{
+
+            }
+
 
             while (resultSet.next()) {
                 String userStatus = resultSet.getString("status");
