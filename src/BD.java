@@ -16,7 +16,8 @@ public class BD {
 
 
     public int getUser(String login, String password) {
-        String sql = "SELECT login FROM `users_log` WHERE login = ? AND password = ?"; // Extracting login
+        String sql = "SELECT role FROM `users_log` WHERE login = ? AND password = ?";
+        String updateSQL = "UPDATE users_log SET status = ? WHERE login = ?";// Extracting login
         int result = 0;
 
         try (Connection connection = getDbConnection();
@@ -27,8 +28,17 @@ public class BD {
             ResultSet resultSet = prSt.executeQuery();
 
             if (resultSet.next()) {
+                try (PreparedStatement prStUpdate = connection.prepareStatement(updateSQL)) {
+                    prStUpdate.setString(1, "1");
+                    prStUpdate.setString(2, login);
 
-                result = 1;
+                    prStUpdate.executeUpdate();
+
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                result = resultSet.getInt("role");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,6 +79,36 @@ public class BD {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public String closeUser(String login){
+        String updateSQL = "UPDATE users_log SET status = ? WHERE login = ?";
+        try (Connection connection = getDbConnection();
+             PreparedStatement pstmt = connection.prepareStatement(updateSQL)) {
+
+            pstmt.setString(1, "0"); // Устанавливаем новое значение
+            pstmt.setString(2, login); // Устанавливаем ID пользователя
+
+            pstmt.executeUpdate(); // Выполняем запрос
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "0";
+
+    }
+    public String closeAll(){
+        String mess="bad connect";
+        String updateSQL = "UPDATE users_log SET status = 0";
+        try (Connection connection = getDbConnection();
+             PreparedStatement pstmt = connection.prepareStatement(updateSQL)) {
+            pstmt.executeUpdate(); // Выполняем запрос
+            mess="good connect!";
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mess;
     }
 
 
@@ -201,21 +241,7 @@ public class BD {
         return users;
     }
 
-    public void Update(String login, int newStatus){
-        String updateSQL = "UPDATE black_list SET status = ? WHERE login = ?";
-        try (Connection connection = getDbConnection();
-             PreparedStatement pstmt = connection.prepareStatement(updateSQL)) {
 
-            pstmt.setString(1, String.valueOf(newStatus)); // Устанавливаем новое значение
-            pstmt.setString(2, login); // Устанавливаем ID пользователя
-
-            pstmt.executeUpdate(); // Выполняем запрос
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
     public  void del(String login){
         String deleteSQL = "DELETE FROM black_list WHERE login = ?";
         try (Connection connection = getDbConnection();

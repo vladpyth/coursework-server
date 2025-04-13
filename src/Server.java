@@ -2,13 +2,15 @@ import java.io.*;
 import java.net.*;
 
 public class Server {
+    private static Commands command = new Commands();
     public static void main(String[] args) {
         ServerSocket serverSocket = null;
 
         try {
+
             System.out.println("Server starting...");
             serverSocket = new ServerSocket(2525); // создание сокета сервера для заданного порта
-
+            command.closeAll();
             while (true) {
                 Socket clientAccepted = serverSocket.accept(); // ожидание подключения клиента
                 System.out.println("Connection established...");
@@ -34,9 +36,11 @@ class ClientHandler extends Thread {
     private ObjectInputStream sois;
     private ObjectOutputStream soos;
     private Commands commands = new Commands();
+    private String nameUser=null;
 
     public ClientHandler(Socket socket) {
         this.clientSocket = socket;
+
     }
 
     @Override
@@ -48,13 +52,13 @@ class ClientHandler extends Thread {
             String clientMessageReceived = (String) sois.readObject(); // чтение сообщения от клиента
             String answer;
             while (!clientMessageReceived.equals("quit")) { // цикл до получения "quit"
+
                 System.out.println(clientMessageReceived);
                 answer = commands.initCommand(clientMessageReceived);
-                if (answer != null) {
-                    soos.writeObject(answer);
-                } else {
-                    soos.writeObject("0");
+                if(nameUser==null){
+                    nameUser=Username(answer);
                 }
+                soos.writeObject(answer);
 
                 clientMessageReceived = (String) sois.readObject(); // ожидание нового сообщения от клиента
             }
@@ -63,6 +67,14 @@ class ClientHandler extends Thread {
         } finally {
             // Закрытие потоков и сокета
             try {
+                if(nameUser!=null){
+                    if("0".equals(commands.initCommand("close "+nameUser))){
+                        System.out.println("User quit is correct!");
+                    }else{
+                        System.out.println("User quit is not correct!");
+                    }
+                }
+
                 if (sois != null) sois.close(); // закрытие потока ввода
                 if (soos != null) soos.close(); // закрытие потока вывода
                 if (clientSocket != null) clientSocket.close(); // закрытие сокета клиента
@@ -71,4 +83,14 @@ class ClientHandler extends Thread {
             }
         }
     }
+    private String Username(String input) {
+        // Разбиваем строку на слова по пробелам
+        String[] words = input.split("\\s+");
+        String name=null;
+        if(words.length==4){
+            name=words[3];
+        }
+        return name;
+    }
+
 }

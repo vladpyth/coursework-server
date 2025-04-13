@@ -9,28 +9,30 @@ public class Commands {
 
 
 
+    public  String close(String[] com){
+        return bd.closeUser(com[1]);
+    }
 
     public String logining(String[] com){
-        // return bd.getUser(com[1],com[2]);
-        //System.out.println("logining");
+
 
         String result="0 "+logining;
-        if(bd.getUser(com[1],com[2])==1){
-            result="1 "+logining;
-            return result;
+        int role = bd.getUser(com[1],com[2]);
+        if(role>=1){
+            result="1 "+logining+" "+role+" "+com[1];
+
         }
 
         return result;
     }
 
-    public String autorisation(String[] com){
-       // return bd.insertUser(com[1],com[2],com[3]);
-        //System.out.println("autorisation");
+    private String autorisation(String[] com){
+
 
         String result="0 "+autorisation;
         if(bd.insertUser(com[1],com[2],com[3])==1){
             result="1 "+autorisation;
-            return result;
+
         }
         return result;
     }
@@ -59,6 +61,11 @@ public class Commands {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return "0 server";
     }
+    public  void closeAll(){
+        System.out.println(bd.closeAll());
+    }
+
 }
+
