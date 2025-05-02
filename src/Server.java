@@ -62,6 +62,7 @@ class ClientHandler extends Thread {
 
                 clientMessageReceived = (String) sois.readObject(); // ожидание нового сообщения от клиента
             }
+
         } catch (Exception e) {
             e.printStackTrace(); // печать стека исключений для отладки
         } finally {
